@@ -1,9 +1,8 @@
 //api/services/users.services.js
 const bcrypt = require('bcrypt');
 const boom = require('@hapi/boom');
-const getConnection = require('../libs/postgres')
+
 const { models } = require( '../libs/sequelize');
-const { password } = require('pg/lib/defaults');
 
 class UserService {
   constructor() {}
@@ -27,6 +26,16 @@ class UserService {
 
   async findOne(id) {
     const user = await models.User.findByPk(id);
+    if (!user) {
+      throw boom.notFound('User not found');
+    };
+    return user;
+  }
+  
+  async findByEmail(email) {
+    const user = await models.User.findOne({
+      where: { email }
+    });
     if (!user) {
       throw boom.notFound('User not found');
     };

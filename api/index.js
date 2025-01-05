@@ -2,6 +2,7 @@
 const express = require("express");
 const routerApi = require("./routes");
 const cors = require("cors");
+const passport = require('passport');
 
 const { logErrors, ormErrorHandler, boomErrorHandler, errorHandler } = require("./middlewares/error.handler");
 const { checkApiKey} = require("./middlewares/auth.handler");
@@ -11,6 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 //middleware
+app.use(passport.initialize());
 app.use(express.json());
 
 routerApi(app);
@@ -27,6 +29,8 @@ const options = {
 };
 
 app.use(cors(options));
+require("./utils/auth");
+
 
 app.get("/", (req, res) => {
   res.send("My express server");
