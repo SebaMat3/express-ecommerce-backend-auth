@@ -1,10 +1,12 @@
 //routes/categories.router.js
 
-// imports of Modules
 const express = require('express');
 const CategoriesService = require('../services/categories.service');
 const validatorHandler = require('./../middlewares/validator.handler');
 const { createCategorySchema, updateCategorySchema, getCategorySchema } = require('./../schemas/category.schema');
+const { config } = require('../config/config.js');
+const passport = require('passport');
+const { JwtStrategy } = require('../utils/auth/strategies/jwt.strategy.js');
 
 // instace of class
 const router = express.Router();
@@ -35,6 +37,7 @@ router.get('/:id',
 );
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
   validatorHandler(createCategorySchema, 'body'),
   async (req, res, next) => {
     try {
