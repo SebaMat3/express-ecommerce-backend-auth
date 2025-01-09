@@ -6,7 +6,7 @@ const secret = "myCat";
 //Payload is used to identify the owner of the token. `sub` attribute is required as a name or id, the rest are optional.
 const payload = {
     sub: 1,
-    scope: '',
+    role: '',
 
 }
 
