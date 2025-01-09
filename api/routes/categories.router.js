@@ -1,29 +1,34 @@
 //routes/categories.router.js
-
 const express = require('express');
+const passport = require('passport');
+
 const CategoriesService = require('../services/categories.service');
 const validatorHandler = require('./../middlewares/validator.handler');
+const { checkRoles } = require('./../middlewares/auth.handler');
 const { createCategorySchema, updateCategorySchema, getCategorySchema } = require('./../schemas/category.schema');
-const { config } = require('../config/config.js');
-const passport = require('passport');
-const { JwtStrategy } = require('../utils/auth/strategies/jwt.strategy.js');
+
 
 // instace of class
 const router = express.Router();
 const service = new CategoriesService();
 
 // routing
-
-router.get('/', async (req, res, next) => {
-  try {
-    const categories = await service.find();
-    res.json(categories);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get('/',  
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('admin', 'seller','customer'),
+    async (req, res, next) => {
+      try {
+        const categories = await service.find();
+        res.json(categories);
+      } catch (error) {
+        next(error);
+      }
+    }
+);
 
 router.get('/:id',
+  passport.authenticate('jwt', {session: false}),
+  checkRoles('admin', 'seller','customer'),
   validatorHandler(getCategorySchema, 'params'),
   async (req, res, next) => {
     try {
@@ -38,6 +43,7 @@ router.get('/:id',
 
 router.post('/',
   passport.authenticate('jwt', {session: false}),
+  checkRoles('admin'),
   validatorHandler(createCategorySchema, 'body'),
   async (req, res, next) => {
     try {
