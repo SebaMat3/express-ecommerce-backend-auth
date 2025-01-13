@@ -9,6 +9,7 @@ const {
   updateOrderSchema,
   addItemSchema
 } = require('../schemas/order.schema');
+const passport = require('passport');
 
 const router = express.Router();
 const service = new OrderService();
@@ -30,10 +31,12 @@ router.get('/:id',
 
 
 router.post('/',
-  validatorHandler(createOrderSchema, 'body'),
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
-      const body = req.body;
+      const body = {
+        userId: req.user.sub
+      };
       res.status(201).json(await service.create(body));
     } catch (error) {
       next(error);

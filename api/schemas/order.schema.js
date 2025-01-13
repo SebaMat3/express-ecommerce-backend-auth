@@ -13,7 +13,7 @@ const getOrderSchema = Joi.object({
 });
 
 const createOrderSchema = Joi.object({
-  customerId: customerId.required()
+  customerId: customerId
 });
 const addItemSchema = Joi.object({
   orderId: orderId.required(),
