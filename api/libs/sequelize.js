@@ -4,10 +4,13 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 const { config } = require('./../config/config');
 const { setupModels } = require('./../db/models');
+const path = require('path');
 
 const options = {
   dialect: 'postgres',
   logging: config.isProd ? false : console.log,
+  migrationStorageTableName: 'migrations',
+  migrationPath: path.resolve('api/db/migrations')
 }
 
 if (config.isProd) {

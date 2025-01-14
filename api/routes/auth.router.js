@@ -22,7 +22,7 @@ router.post('/recovery',
   async (req, res, next) => {
     try{
       const { email } = req.body;
-      res.json(service.sendMail(email));
+      res.json(service.sendRecovery(email));
     } catch (error) {
       next(error);
     }

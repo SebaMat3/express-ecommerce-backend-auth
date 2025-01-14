@@ -1,8 +1,6 @@
 //api/utils/auth/strategies/local.strategy.js
 
 const { Strategy } = require('passport-local');
-const boom = require('@hapi/boom');
-const bcrypt = require('bcrypt');
 
 const AuthService = require('../../../services/auth.service');
 const service = new AuthService(); 
