@@ -20,6 +20,7 @@ class AuthService {
             throw boom.unauthorized();
         }
         delete user.dataValues.password;
+        delete user.dataValues.recoveryToken;
         return user;
     }
 
@@ -40,6 +41,20 @@ class AuthService {
         if (!user) {
             throw boom.unauthorized();
         }
+
+        // Check for existing valid token
+        if (user.recoveryToken) {
+            try {
+                jwt.verify(user.recoveryToken, config.jwtSecret);
+                throw boom.conflict('You already have an active recovery token. Please wait before requesting a new one.');
+            } catch (error) {
+                // If token verification fails (expired), continue with new token generation
+                if (error.name !== 'JsonWebTokenError') {
+                    throw error;
+                }
+            }
+        }
+
         const payload = {sub : user.id}
         const token = jwt.sign(payload, config.jwtSecret, {expiresIn: '15min'});
         const link = `http://www.myfrontend.com/recovery?token=${token}`;
@@ -53,6 +68,21 @@ class AuthService {
         const result = await this.sendMail(mail);
         return result;
     } 
+
+    async changePassword(token, newPassword) {
+        try {
+            const payload = jwt.verify(token, config.jwtSecret);
+            const user = await service.findOne(payload.sub);
+            if (user.recoveryToken !== token) {
+                throw boom.unauthorized();
+            }
+            const hash = await bcrypt.hash(newPassword, 10);
+            await service.update(user.id, {recoveryToken: null, password: hash});
+            return { message: 'Password changed.' };
+        } catch (error) {
+            throw boom.unauthorized();
+        }
+    }
 
     async sendMail(infoMail){
         const transporter = nodemailer.createTransport({
